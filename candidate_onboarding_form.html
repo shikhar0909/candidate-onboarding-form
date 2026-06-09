@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidate Onboarding Form</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; padding: 30px 16px; }
+  .form-wrapper { max-width: 780px; margin: 0 auto; }
+  .form-header { background: #1a3c6e; color: white; padding: 28px 32px; border-radius: 12px 12px 0 0; }
+  .form-header h1 { font-size: 22px; font-weight: 600; }
+  .form-header p { font-size: 13px; opacity: 0.8; margin-top: 6px; }
+  .form-body { background: white; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: 15px; font-weight: 600; color: #1a3c6e; border-left: 4px solid #1a3c6e; padding-left: 10px; margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 13px; color: #444; font-weight: 500; }
+  .field label .req { color: #e03; margin-left: 2px; }
+  .field input, .field select, .field textarea {
+    border: 1px solid #d0d5dd; border-radius: 6px; padding: 9px 12px;
+    font-size: 14px; color: #222; background: #fafafa; transition: border 0.2s;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: #1a3c6e; background: #fff;
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .same-address { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; }
+  .same-address input { width: 16px; height: 16px; cursor: pointer; }
+  .same-address label { font-size: 13px; color: #444; cursor: pointer; }
+  .divider { border: none; border-top: 1px solid #eee; margin: 8px 0 20px; }
+  .submit-row { text-align: center; margin-top: 32px; }
+  .btn-submit {
+    background: #1a3c6e; color: white; border: none; padding: 14px 48px;
+    font-size: 15px; font-weight: 600; border-radius: 8px; cursor: pointer;
+    transition: background 0.2s; font-family: 'Segoe UI', sans-serif;
+  }
+  .btn-submit:hover { background: #14305a; }
+  .btn-submit:disabled { background: #999; cursor: not-allowed; }
+  .success-msg {
+    display: none; background: #e6f4ea; border: 1px solid #34a853;
+    color: #1e7e34; padding: 16px 20px; border-radius: 8px;
+    text-align: center; font-size: 15px; margin-top: 20px;
+  }
+  .error-msg {
+    display: none; background: #fce8e6; border: 1px solid #ea4335;
+    color: #c5221f; padding: 16px 20px; border-radius: 8px;
+    text-align: center; font-size: 15px; margin-top: 20px;
+  }
+  .loading { display: none; text-align: center; color: #666; margin-top: 16px; font-size: 14px; }
+  @media (max-width: 600px) {
+    .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+    .form-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="form-wrapper">
+  <div class="form-header">
+    <h1>Candidate Onboarding Form</h1>
+    <p>Please fill in all required details carefully. Fields marked with * are mandatory.</p>
+  </div>
+  <div class="form-body">
+    <form id="candidateForm">
+
+      <!-- Section 1: Personal Information -->
+      <div class="section">
+        <div class="section-title">Personal Information</div>
+        <div class="form-grid three">
+          <div class="field">
+            <label>Prefix <span class="req">*</span></label>
+            <select name="Prefix" required>
+              <option value="">Select</option>
+              <option>Mr.</option>
+              <option>Ms.</option>
+              <option>Mrs.</option>
+              <option>Dr.</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" name="FirstName" placeholder="Enter first name" required>
+          </div>
+          <div class="field">
+            <label>Middle Name</label>
+            <input type="text" name="MiddleName" placeholder="Enter middle name">
+          </div>
+        </div>
+        <br>
+        <div class="form-grid">
+          <div class="field">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" name="LastName" placeholder="Enter last name" required>
+          </div>
+          <div class="field">
+            <label>Date of Birth <span class="req">*</span></label>
+            <input type="date" name="DateOfBirth" required>
+          </div>
+          <div class="field">
+            <label>Gender <span class="req">*</span></label>
+            <select name="Gender" required>
+              <option value="">Select</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Blood Group <span class="req">*</span></label>
+            <select name="BloodGroup" required>
+              <option value="">Select</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>O+</option><option>O-</option>
+              <option>AB+</option><option>AB-</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nationality <span class="req">*</span></label>
+            <input type="text" name="Nationality" placeholder="e.g. Indian" required>
+          </div>
+          <div class="field">
+            <label>Mobile Number <span class="req">*</span></label>
+            <input type="tel" name="MobileNumber" placeholder="10-digit mobile number" maxlength="10" required>
+          </div>
+          <div class="field">
+            <label>Personal Email <span class="req">*</span></label>
+            <input type="email" name="PersonalEmail" placeholder="candidate@email.com" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Identity Documents -->
+      <div class="section">
+        <div class="section-title">Identity Documents</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Aadhaar Number <span class="req">*</span></label>
+            <input type="text" name="AadhaarNo" placeholder="12-digit Aadhaar number" maxlength="12" required>
+          </div>
+          <div class="field">
+            <label>PAN Number <span class="req">*</span></label>
+            <input type="text" name="PANNo" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform:uppercase" required>
+          </div>
+          <div class="field">
+            <label>Passport Number</label>
+            <input type="text" name="PassportNo" placeholder="If available">
+          </div>
+          <div class="field">
+            <label>Passport Valid Upto</label>
+            <input type="date" name="PassportValidUpto">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Current Address -->
+      <div class="section">
+        <div class="section-title">Current Address</div>
+        <div class="form-grid full">
+          <div class="field">
+            <label>Address Line <span class="req">*</span></label>
+            <textarea name="CurrentAddress" placeholder="House no, Street, Area" required></textarea>
+          </div>
+        </div>
+        <br>
+        <div class="form-grid three">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" name="CurrentCity" placeholder="City" required>
+          </div>
+          <div class="field">
+            <label>State <span class="req">*</span></label>
+            <input type="text" name="CurrentState" placeholder="State" required>
+          </div>
+          <div class="field">
+            <label>Pin Code <span class="req">*</span></label>
+            <input type="text" name="CurrentPinCode" placeholder="6-digit pin code" maxlength="6" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Permanent Address -->
+      <div class="section">
+        <div class="section-title">Permanent Address</div>
+        <div class="same-address">
+          <input type="checkbox" id="sameAddress" onchange="copyAddress(this)">
+          <label for="sameAddress">Same as Current Address</label>
+        </div>
+        <div class="form-grid full">
+          <div class="field">
+            <label>Address Line <span class="req">*</span></label>
+            <textarea name="PermanentAddress" id="permAddr" placeholder="House no, Street, Area" required></textarea>
+          </div>
+        </div>
+        <br>
+        <div class="form-grid three">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" name="PermanentCity" id="permCity" placeholder="City" required>
+          </div>
+          <div class="field">
+            <label>State <span class="req">*</span></label>
+            <input type="text" name="PermanentState" id="permState" placeholder="State" required>
+          </div>
+          <div class="field">
+            <label>Pin Code <span class="req">*</span></label>
+            <input type="text" name="PermanentPinCode" id="permPin" placeholder="6-digit pin code" maxlength="6" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Qualification -->
+      <div class="section">
+        <div class="section-title">Educational Qualification</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Highest Qualification <span class="req">*</span></label>
+            <select name="HighestQualification" required>
+              <option value="">Select</option>
+              <option>10th</option><option>12th</option>
+              <option>Diploma</option><option>Bachelor's</option>
+              <option>Master's</option><option>PhD</option><option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Qualification / Stream <span class="req">*</span></label>
+            <input type="text" name="Qualification" placeholder="e.g. B.Tech - Computer Science" required>
+          </div>
+          <div class="field">
+            <label>College / School <span class="req">*</span></label>
+            <input type="text" name="CollegeSchool" placeholder="Institution name" required>
+          </div>
+          <div class="field">
+            <label>University / Board <span class="req">*</span></label>
+            <input type="text" name="UniversityBoard" placeholder="University or Board name" required>
+          </div>
+          <div class="field">
+            <label>Grade / CGPA / Percentage <span class="req">*</span></label>
+            <input type="text" name="Grade" placeholder="e.g. 8.5 CGPA or 85%" required>
+          </div>
+          <div class="field">
+            <label>Year of Passing <span class="req">*</span></label>
+            <input type="number" name="YearOfPassing" placeholder="e.g. 2022" min="1990" max="2030" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 6: Bank Details -->
+      <div class="section">
+        <div class="section-title">Bank Details</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Bank Name <span class="req">*</span></label>
+            <input type="text" name="BankName" placeholder="e.g. HDFC Bank" required>
+          </div>
+          <div class="field">
+            <label>Account Number <span class="req">*</span></label>
+            <input type="text" name="BankAccountNumber" placeholder="Account number" required>
+          </div>
+          <div class="field">
+            <label>IFSC Code <span class="req">*</span></label>
+            <input type="text" name="IFSCCode" placeholder="e.g. HDFC0001234" style="text-transform:uppercase" required>
+          </div>
+          <div class="field">
+            <label>Branch Name <span class="req">*</span></label>
+            <input type="text" name="BranchName" placeholder="Branch name" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 7: Emergency Contact -->
+      <div class="section">
+        <div class="section-title">Emergency Contact</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Contact Name <span class="req">*</span></label>
+            <input type="text" name="EmergencyContactName" placeholder="Full name" required>
+          </div>
+          <div class="field">
+            <label>Contact Number <span class="req">*</span></label>
+            <input type="tel" name="EmergencyContactNo" placeholder="10-digit number" maxlength="10" required>
+          </div>
+          <div class="field">
+            <label>Relation <span class="req">*</span></label>
+            <select name="EmergencyRelation" required>
+              <option value="">Select</option>
+              <option>Father</option><option>Mother</option>
+              <option>Spouse</option><option>Sibling</option>
+              <option>Friend</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <hr class="divider">
+      <div class="submit-row">
+        <button type="submit" class="btn-submit" id="submitBtn">Submit Details</button>
+        <div class="loading" id="loadingMsg">Submitting your details, please wait...</div>
+        <div class="success-msg" id="successMsg">
+          Your details have been submitted successfully! Our HR team will contact you shortly.
+        </div>
+        <div class="error-msg" id="errorMsg">
+          Something went wrong. Please try again or contact HR.
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  function copyAddress(cb) {
+    if (cb.checked) {
+      document.getElementById('permAddr').value  = document.querySelector('[name=CurrentAddress]').value;
+      document.getElementById('permCity').value  = document.querySelector('[name=CurrentCity]').value;
+      document.getElementById('permState').value = document.querySelector('[name=CurrentState]').value;
+      document.getElementById('permPin').value   = document.querySelector('[name=CurrentPinCode]').value;
+    } else {
+      document.getElementById('permAddr').value  = '';
+      document.getElementById('permCity').value  = '';
+      document.getElementById('permState').value = '';
+      document.getElementById('permPin').value   = '';
+    }
+  }
+
+  document.getElementById('candidateForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loadingMsg');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+
+    btn.disabled = true;
+    loading.style.display = 'block';
+    successMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
+
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((v, k) => data[k] = v);
+
+    // =====================================================
+    // REPLACE THIS URL WITH YOUR POWER AUTOMATE HTTP TRIGGER URL
+    const FLOW_URL = 'YOUR_POWER_AUTOMATE_HTTP_TRIGGER_URL_HERE';
+    // =====================================================
+
+    try {
+      const response = await fetch(FLOW_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (response.ok || response.status === 202) {
+        successMsg.style.display = 'block';
+        this.reset();
+        btn.style.display = 'none';
+      } else {
+        throw new Error('Server error');
+      }
+    } catch (err) {
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+    }
+    loading.style.display = 'none';
+  });
+</script>
+</body>
+</html>
