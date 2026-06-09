@@ -30,6 +30,16 @@
     outline: none; border-color: #1a3c6e; background: #fff;
   }
   .field textarea { resize: vertical; min-height: 80px; }
+  .file-upload-box {
+    border: 2px dashed #d0d5dd; border-radius: 8px; padding: 16px;
+    text-align: center; cursor: pointer; transition: border 0.2s; background: #fafafa;
+  }
+  .file-upload-box:hover { border-color: #1a3c6e; background: #f0f4ff; }
+  .file-upload-box input[type=file] { display: none; }
+  .file-upload-box .upload-icon { font-size: 24px; color: #1a3c6e; margin-bottom: 6px; }
+  .file-upload-box .upload-text { font-size: 13px; color: #555; }
+  .file-upload-box .upload-hint { font-size: 11px; color: #999; margin-top: 4px; }
+  .file-name { font-size: 12px; color: #1a3c6e; margin-top: 6px; font-weight: 500; }
   .same-address { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; }
   .same-address input { width: 16px; height: 16px; cursor: pointer; }
   .same-address label { font-size: 13px; color: #444; cursor: pointer; }
@@ -53,6 +63,22 @@
     text-align: center; font-size: 15px; margin-top: 20px;
   }
   .loading { display: none; text-align: center; color: #666; margin-top: 16px; font-size: 14px; }
+  .qual-entry { background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; position: relative; }
+  .qual-entry .remove-qual {
+    position: absolute; top: 10px; right: 10px; background: #fee2e2;
+    border: none; color: #c5221f; border-radius: 50%; width: 24px; height: 24px;
+    font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .btn-add {
+    background: none; border: 2px dashed #1a3c6e; color: #1a3c6e;
+    padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; width: 100%; margin-top: 8px; transition: background 0.2s;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .btn-add:hover { background: #f0f4ff; }
+  .bank-fields { transition: opacity 0.3s; }
+  .bank-fields.disabled { opacity: 0.4; pointer-events: none; }
+  .uan-note { display: none; background: #fff8e1; border: 1px solid #f59e0b; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #92400e; margin-top: 8px; }
   @media (max-width: 600px) {
     .form-grid, .form-grid.three, .form-grid.four { grid-template-columns: 1fr; }
     .form-body { padding: 20px; }
@@ -127,6 +153,18 @@
             <input type="email" name="PersonalEmail" placeholder="candidate@email.com" required>
           </div>
         </div>
+        <br>
+        <!-- Photo Upload -->
+        <div class="field">
+          <label>Photo <span class="req">*</span></label>
+          <div class="file-upload-box" onclick="document.getElementById('photoUpload').click()">
+            <input type="file" id="photoUpload" name="Photo" accept="image/*" required onchange="showFileName(this,'photoName')">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click to upload your photo</div>
+            <div class="upload-hint">JPG, PNG up to 2MB</div>
+            <div class="file-name" id="photoName"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Section 2: Identity Documents -->
@@ -158,6 +196,23 @@
             <input type="date" name="DrivingLicenseExpiry">
           </div>
         </div>
+        <br>
+        <!-- Aadhaar Upload -->
+        <div class="field">
+          <label>Aadhaar Card <span class="req">*</span></label>
+          <div id="aadhaarContainer">
+            <div class="qual-entry" id="aadhaar_1" style="padding:10px;margin-bottom:8px">
+              <div class="file-upload-box" onclick="document.getElementById('AadhaarCard_1').click()">
+                <input type="file" id="AadhaarCard_1" name="AadhaarCard_1" accept=".pdf,image/*" required onchange="showFileName(this,'aadhaarName_1')">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Click to upload Aadhaar page 1</div>
+                <div class="upload-hint">PDF or image, up to 5MB</div>
+                <div class="file-name" id="aadhaarName_1"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addAadhaarPage()">+ Add Another Aadhaar Page</button>
+        </div>
       </div>
 
       <!-- Section 3: Current Address -->
@@ -170,7 +225,7 @@
           </div>
         </div>
         <br>
-        <div class="form-grid four">
+        <div class="form-grid">
           <div class="field">
             <label>City <span class="req">*</span></label>
             <input type="text" name="CurrentCity" placeholder="City" required>
@@ -204,7 +259,7 @@
           </div>
         </div>
         <br>
-        <div class="form-grid four">
+        <div class="form-grid">
           <div class="field">
             <label>City <span class="req">*</span></label>
             <input type="text" name="PermanentCity" id="permCity" placeholder="City" required>
@@ -227,61 +282,92 @@
       <!-- Section 5: Qualification -->
       <div class="section">
         <div class="section-title">Educational Qualification</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Highest Qualification <span class="req">*</span></label>
-            <select name="HighestQualification" required>
-              <option value="">Select</option>
-              <option>10th</option><option>12th</option><option>Diploma</option>
-              <option>Bachelor's</option><option>Master's</option><option>PhD</option><option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Qualification / Stream <span class="req">*</span></label>
-            <input type="text" name="Qualification" placeholder="e.g. B.Tech - Computer Science" required>
-          </div>
-          <div class="field">
-            <label>College / School <span class="req">*</span></label>
-            <input type="text" name="CollegeSchool" placeholder="Institution name" required>
-          </div>
-          <div class="field">
-            <label>University / Board <span class="req">*</span></label>
-            <input type="text" name="UniversityBoard" placeholder="University or Board name" required>
-          </div>
-          <div class="field">
-            <label>Grade / CGPA / Percentage <span class="req">*</span></label>
-            <input type="text" name="Grade" placeholder="e.g. 8.5 CGPA or 85%" required>
-          </div>
-          <div class="field">
-            <label>Year of Starting <span class="req">*</span></label>
-            <input type="number" name="YearOfStarting" placeholder="e.g. 2018" min="1990" max="2030" required>
-          </div>
-          <div class="field">
-            <label>Year of Passing <span class="req">*</span></label>
-            <input type="number" name="YearOfPassing" placeholder="e.g. 2022" min="1990" max="2030" required>
+        <div id="qualContainer">
+          <div class="qual-entry" id="qual_1">
+            <div class="form-grid">
+              <div class="field">
+                <label>Highest Qualification <span class="req">*</span></label>
+                <select name="HighestQualification_1" required>
+                  <option value="">Select</option>
+                  <option>10th</option><option>12th</option><option>Diploma</option>
+                  <option>Bachelor's</option><option>Master's</option><option>PhD</option><option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Qualification / Stream <span class="req">*</span></label>
+                <input type="text" name="Qualification_1" placeholder="e.g. B.Tech - Computer Science" required>
+              </div>
+              <div class="field">
+                <label>College / School <span class="req">*</span></label>
+                <input type="text" name="CollegeSchool_1" placeholder="Institution name" required>
+              </div>
+              <div class="field">
+                <label>University / Board <span class="req">*</span></label>
+                <input type="text" name="UniversityBoard_1" placeholder="University or Board" required>
+              </div>
+              <div class="field">
+                <label>Grade / CGPA / % <span class="req">*</span></label>
+                <input type="text" name="Grade_1" placeholder="e.g. 8.5 CGPA or 85%" required>
+              </div>
+              <div class="field">
+                <label>Year of Starting <span class="req">*</span></label>
+                <input type="number" name="YearOfStarting_1" placeholder="e.g. 2018" min="1990" max="2030" required>
+              </div>
+              <div class="field">
+                <label>Year of Passing <span class="req">*</span></label>
+                <input type="number" name="YearOfPassing_1" placeholder="e.g. 2022" min="1990" max="2030" required>
+              </div>
+            </div>
+            <!-- Mark Sheet Upload -->
+            <br>
+            <div class="field">
+              <label>Mark Sheet <span class="req">*</span></label>
+              <div class="file-upload-box" onclick="document.getElementById('marksheet_1').click()">
+                <input type="file" id="marksheet_1" name="MarkSheet_1" accept=".pdf,image/*" required onchange="showFileName(this,'markName_1')">
+                <div class="upload-icon">📋</div>
+                <div class="upload-text">Click to upload mark sheet</div>
+                <div class="upload-hint">PDF or image, up to 5MB</div>
+                <div class="file-name" id="markName_1"></div>
+              </div>
+            </div>
           </div>
         </div>
+        <button type="button" class="btn-add" onclick="addQualification()">+ Add Another Qualification</button>
       </div>
 
       <!-- Section 6: Bank Details -->
       <div class="section">
         <div class="section-title">Bank Details</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Bank Name <span class="req">*</span></label>
-            <input type="text" name="BankName" placeholder="e.g. HDFC Bank" required>
-          </div>
-          <div class="field">
-            <label>Account Number <span class="req">*</span></label>
-            <input type="text" name="BankAccountNumber" placeholder="Account number" required>
-          </div>
-          <div class="field">
-            <label>IFSC Code <span class="req">*</span></label>
-            <input type="text" name="IFSCCode" placeholder="e.g. HDFC0001234" style="text-transform:uppercase" required>
-          </div>
-          <div class="field">
-            <label>Branch Name <span class="req">*</span></label>
-            <input type="text" name="BranchName" placeholder="Branch name" required>
+        <div class="field" style="margin-bottom:16px">
+          <label>Type of Bank Account <span class="req">*</span></label>
+          <select name="BankAccountType" id="bankAccountType" required onchange="toggleBankFields(this.value)">
+            <option value="">Select</option>
+            <option value="New">New</option>
+            <option value="Existing">Existing</option>
+          </select>
+        </div>
+        <div class="bank-fields" id="bankFields">
+          <div class="form-grid" id="bankGrid">
+            <div class="field">
+              <label id="bankNameLabel">Bank Name</label>
+              <input type="text" name="BankName" id="BankName" placeholder="e.g. HDFC Bank">
+            </div>
+            <div class="field">
+              <label id="bankAccLabel">Account Number</label>
+              <input type="text" name="BankAccountNumber" id="BankAccountNumber" placeholder="Account number">
+            </div>
+            <div class="field">
+              <label id="ifscLabel">IFSC Code</label>
+              <input type="text" name="IFSCCode" id="IFSCCode" placeholder="e.g. HDFC0001234" style="text-transform:uppercase">
+            </div>
+            <div class="field">
+              <label id="branchLabel">Branch Name</label>
+              <input type="text" name="BranchName" id="BranchName" placeholder="Branch name">
+            </div>
+            <div class="field" id="uanField" style="display:none">
+              <label id="uanLabel">UAN Number <span class="req">*</span></label>
+              <input type="text" name="UANNumber" id="UANNumber" placeholder="12-digit UAN number" maxlength="12">
+            </div>
           </div>
         </div>
       </div>
@@ -326,6 +412,13 @@
 </div>
 
 <script>
+  let qualCount = 1;
+
+  function showFileName(input, nameId) {
+    const el = document.getElementById(nameId);
+    el.textContent = input.files[0] ? '✓ ' + input.files[0].name : '';
+  }
+
   function copyAddress(cb) {
     if (cb.checked) {
       document.getElementById('permAddr').value    = document.querySelector('[name=CurrentAddress]').value;
@@ -342,6 +435,153 @@
     }
   }
 
+  function toggleBankFields(val) {
+    const bankFields   = ['BankName','BankAccountNumber','IFSCCode','BranchName'];
+    const labelIds     = ['bankNameLabel','bankAccLabel','ifscLabel','branchLabel'];
+    const reqLabels    = ['Bank Name','Account Number','IFSC Code','Branch Name'];
+    const uanField     = document.getElementById('uanField');
+    const uanInput     = document.getElementById('UANNumber');
+
+    if (val === 'Existing') {
+      bankFields.forEach((id, i) => {
+        const input = document.getElementById(id);
+        input.setAttribute('required', 'true');
+        document.getElementById(labelIds[i]).innerHTML = reqLabels[i] + ' <span class="req">*</span>';
+      });
+      uanField.style.display = 'flex';
+      uanInput.setAttribute('required', 'true');
+    } else if (val === 'New') {
+      bankFields.forEach((id, i) => {
+        const input = document.getElementById(id);
+        input.removeAttribute('required');
+        document.getElementById(labelIds[i]).innerHTML = reqLabels[i];
+      });
+      uanField.style.display = 'none';
+      uanInput.removeAttribute('required');
+      uanInput.value = '';
+    } else {
+      bankFields.forEach((id, i) => {
+        document.getElementById(id).removeAttribute('required');
+        document.getElementById(labelIds[i]).innerHTML = reqLabels[i];
+      });
+      uanField.style.display = 'none';
+      uanInput.removeAttribute('required');
+    }
+  }
+
+  let aadhaarCount = 1;
+
+  function addAadhaarPage() {
+    aadhaarCount++;
+    const container = document.getElementById('aadhaarContainer');
+    const div = document.createElement('div');
+    div.className = 'qual-entry';
+    div.id = 'aadhaar_' + aadhaarCount;
+    div.style.padding = '10px';
+    div.style.marginBottom = '8px';
+    div.innerHTML = `
+      <button type="button" class="remove-qual" onclick="removeAadhaar(${aadhaarCount})">✕</button>
+      <div class="file-upload-box" onclick="document.getElementById('AadhaarCard_${aadhaarCount}').click()">
+        <input type="file" id="AadhaarCard_${aadhaarCount}" name="AadhaarCard_${aadhaarCount}" accept=".pdf,image/*" onchange="showFileName(this,'aadhaarName_${aadhaarCount}')">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">Click to upload Aadhaar page ${aadhaarCount}</div>
+        <div class="upload-hint">PDF or image, up to 5MB</div>
+        <div class="file-name" id="aadhaarName_${aadhaarCount}"></div>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  function removeAadhaar(id) {
+    const el = document.getElementById('aadhaar_' + id);
+    if (el) el.remove();
+  }
+
+  function addQualification() {
+    qualCount++;
+    const container = document.getElementById('qualContainer');
+    const div = document.createElement('div');
+    div.className = 'qual-entry';
+    div.id = 'qual_' + qualCount;
+    div.innerHTML = `
+      <button type="button" class="remove-qual" onclick="removeQual(${qualCount})">✕</button>
+      <div class="form-grid">
+        <div class="field">
+          <label>Highest Qualification</label>
+          <select name="HighestQualification_${qualCount}">
+            <option value="">Select</option>
+            <option>10th</option><option>12th</option><option>Diploma</option>
+            <option>Bachelor's</option><option>Master's</option><option>PhD</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Qualification / Stream</label>
+          <input type="text" name="Qualification_${qualCount}" placeholder="e.g. B.Tech - Computer Science">
+        </div>
+        <div class="field">
+          <label>College / School</label>
+          <input type="text" name="CollegeSchool_${qualCount}" placeholder="Institution name">
+        </div>
+        <div class="field">
+          <label>University / Board</label>
+          <input type="text" name="UniversityBoard_${qualCount}" placeholder="University or Board">
+        </div>
+        <div class="field">
+          <label>Grade / CGPA / %</label>
+          <input type="text" name="Grade_${qualCount}" placeholder="e.g. 8.5 CGPA or 85%">
+        </div>
+        <div class="field">
+          <label>Year of Starting</label>
+          <input type="number" name="YearOfStarting_${qualCount}" placeholder="e.g. 2018" min="1990" max="2030">
+        </div>
+        <div class="field">
+          <label>Year of Passing</label>
+          <input type="number" name="YearOfPassing_${qualCount}" placeholder="e.g. 2022" min="1990" max="2030">
+        </div>
+      </div>
+      <br>
+      <div class="field">
+        <label>Mark Sheet</label>
+        <div class="file-upload-box" onclick="document.getElementById('marksheet_${qualCount}').click()">
+          <input type="file" id="marksheet_${qualCount}" name="MarkSheet_${qualCount}" accept=".pdf,image/*" onchange="showFileName(this,'markName_${qualCount}')">
+          <div class="upload-icon">📋</div>
+          <div class="upload-text">Click to upload mark sheet</div>
+          <div class="upload-hint">PDF or image, up to 5MB</div>
+          <div class="file-name" id="markName_${qualCount}"></div>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  function removeQual(id) {
+    const el = document.getElementById('qual_' + id);
+    if (el) el.remove();
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || file.size === 0) { resolve(null); return; }
+      const reader = new FileReader();
+      reader.onload = () => resolve({
+        name: file.name,
+        content: reader.result.split(',')[1],
+        type: file.type
+      });
+      reader.onerror = () => reject(new Error('File read failed'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function collectFiles() {
+    const files = {};
+    const fileInputs = document.querySelectorAll('input[type=file]');
+    for (const input of fileInputs) {
+      if (input.files[0]) {
+        files[input.name] = await fileToBase64(input.files[0]);
+      }
+    }
+    return files;
+  }
+
   document.getElementById('candidateForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -356,12 +596,14 @@
 
     const formData = new FormData(this);
     const data = {};
-    formData.forEach((v, k) => data[k] = v);
+    formData.forEach((v, k) => { if (!(v instanceof File)) data[k] = v; });
 
-    // =====================================================
-    // REPLACE THIS URL WITH YOUR POWER AUTOMATE HTTP TRIGGER URL
+    loading.textContent = 'Uploading files, please wait...';
+    const files = await collectFiles();
+    data.files = files;
+    loading.textContent = 'Submitting your details, please wait...';
+
     const FLOW_URL = 'https://default503817072c5c46129aad5f66f950e6.29.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/62d75074773b435cabeb42d1c60c3c2b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=wQXfnTTrAxwyEo-Irghcd4KVCo7LAovq3wAhi6T8GKs';
-    // =====================================================
 
     try {
       const response = await fetch(FLOW_URL, {
